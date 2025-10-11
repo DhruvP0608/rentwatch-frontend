@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications - RentWatch BLR</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      color: #333;
+    }
+
+    /* Navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #0b5ef5;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.5rem 1rem;
+      background-color: #f0f0f0;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: 500;
+      color: #333;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      background-color: #e0e0e0;
+      transform: scale(1.05);
+    }
+
+    .nav-buttons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+      color: white;
+    }
+
+    .btn.blue { background: #007bff; }
+    .btn.green { background: #28a745; }
+    .btn:hover { transform: scale(1.05); box-shadow: 0 0 12px rgba(0,0,0,0.15); }
+
+    /* Login / Logout */
+    .auth-btn {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: #fff;
+      border-radius: 12px;
+      padding: 8px 16px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
+    }
+
+    .auth-btn:hover {
+      background: linear-gradient(90deg, #2563eb, #1d4ed8);
+      transform: scale(1.05);
+    }
+
+    .auth-btn.logout {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+      color: #fff;
+      box-shadow: 0 3px 8px rgba(220, 38, 38, 0.25);
+    }
+
+    .auth-btn.logout:hover {
+      background: linear-gradient(90deg, #f87171, #ef4444);
+      transform: scale(1.05);
+    }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(to right, #007bff, #28a745);
+      color: #fff;
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+
+    .notifications-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      gap: 1.2rem;
+    }
+
+    .notification-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 1.2rem 1.5rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      width: 80%;
+      max-width: 700px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .notification-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+    }
+
+    .notification-card h3 {
+      margin: 0;
+      color: #007bff;
+    }
+
+    .notification-card p { margin: 0.5rem 0; color: #444; }
+    .notification-card small { color: #666; display: block; margin-top: 0.4rem; }
+
+    .resolve-btn {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      margin-top: 0.75rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .resolve-btn:hover { background-color: #218838; transform: scale(1.05); }
+    .resolve-btn:disabled { background-color: #bbb; cursor: not-allowed; }
+
+    .empty-msg {
+      font-size: 1.1rem;
+      color: #555;
+      margin-top: 2rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: #555;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="logo">RentWatch BLR</a>
+    <div class="nav-links">
+      <a href="index.html"><i class="fas fa-house"></i>Home</a>
+      <a href="browse.html"><i class="fas fa-folder-open"></i>Browse Complaints</a>
+      <a href="notifications.html"><i class="fas fa-bell"></i>Notifications</a>
+      <a href="forum.html"><i class="fas fa-comments"></i>Forum</a>
+      <a href="resources.html"><i class="fas fa-book"></i>Resources</a>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn blue" onclick="checkRoleAndNavigate('tenant','/tenant-complaint.html')">Tenant Complaint</button>
+      <button class="btn green" onclick="checkRoleAndNavigate('landlord','/landlord-complaint.html')">Landlord Complaint</button>
+      <button id="authBtn" class="auth-btn">Login</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>Notifications</h1>
+    <p>Stay updated with the latest complaint activity.</p>
+  </section>
+
+  <section class="notifications-container" id="notifList">
+    <p class="empty-msg">Loading notifications...</p>
+  </section>
+
+  <footer>© 2025 RentWatch BLR · Building a Fairer Bangalore</footer>
+
+  <script>
+    const notifContainer = document.getElementById('notifList');
+
+    // Dynamic Login/Logout toggle
+    (function () {
+      const authBtn = document.getElementById('authBtn');
+
+      function refreshAuth() {
+        const token = localStorage.getItem('rw_token');
+
+        if (token) {
+          authBtn.textContent = 'Logout';
+          authBtn.classList.add('logout');
+          authBtn.onclick = (e) => {
+            e.preventDefault();
+            localStorage.removeItem('rw_token');
+            sessionStorage.setItem('rw_logged_out', '1');
+            window.location.reload();
+          };
+        } else {
+          authBtn.textContent = 'Login';
+          authBtn.classList.remove('logout');
+          authBtn.onclick = () => window.location.href = '/login.html';
+        }
+      }
+
+      refreshAuth();
+      window.addEventListener('storage', refreshAuth);
+    })();
+
+    async function loadNotifications() {
+      const token = localStorage.getItem('rw_token');
+      if (!token) {
+        notifContainer.innerHTML = '<p class="empty-msg">You need to log in to view notifications.</p>';
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/notifications', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (!res.ok) {
+          notifContainer.innerHTML = '<p class="empty-msg">Unable to load notifications.</p>';
+          return;
+        }
+
+        const data = await res.json();
+        notifContainer.innerHTML = '';
+
+        if (data.length === 0) {
+          notifContainer.innerHTML = '<p class="empty-msg">No new notifications 🎉</p>';
+          return;
+        }
+
+        data.forEach(n => {
+          const card = document.createElement('div');
+          card.classList.add('notification-card');
+          card.innerHTML = `
+            <h3><i class="fa-solid fa-bell"></i> ${n.issueType}</h3>
+            <p>${n.description}</p>
+            <small>Filed by ${n.complainantName || 'Anonymous'} on ${new Date(n.date).toLocaleString()}</small>
+            <small>Status: <b>${n.status}</b></small>
+          `;
+
+          if (n.status === 'Pending') {
+            const btn = document.createElement('button');
+            btn.classList.add('resolve-btn');
+            btn.innerText = 'Mark as Resolved';
+            btn.onclick = () => resolveComplaint(n.id, btn);
+            card.appendChild(btn);
+          }
+
+          notifContainer.appendChild(card);
+        });
+      } catch (err) {
+        notifContainer.innerHTML = '<p class="empty-msg">Server error loading notifications.</p>';
+      }
+    }
+
+    async function resolveComplaint(id, btn) {
+      const token = localStorage.getItem('rw_token');
+      btn.disabled = true;
+      btn.innerText = 'Resolving...';
+
+      try {
+        const res = await fetch(`/api/complaints/${id}/resolve`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+          }
+        });
+
+        if (res.ok) {
+          btn.innerText = 'Resolved ✅';
+          setTimeout(loadNotifications, 1000);
+        } else {
+          const msg = await res.json();
+          alert(msg.error || 'Failed to resolve');
+          btn.disabled = false;
+          btn.innerText = 'Mark as Resolved';
+        }
+      } catch (err) {
+        alert('Server error.');
+        btn.disabled = false;
+        btn.innerText = 'Mark as Resolved';
+      }
+    }
+
+    function checkRoleAndNavigate(role, destination) {
+      const token = localStorage.getItem('rw_token');
+      if (!token) return window.location.href = '/login.html';
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.role !== role) {
+          alert(`You must be logged in as a ${role} to access this page.`);
+          return;
+        }
+        window.location.href = destination;
+      } catch {
+        window.location.href = '/login.html';
+      }
+    }
+
+    loadNotifications();
+  </script>
+</body>
+</html>

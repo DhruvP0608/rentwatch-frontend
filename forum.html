@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Discussion Forum - RentWatch BLR</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --blue: #007bff;
+      --green: #28a745;
+      --bg: #f5f7fa;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: #222;
+    }
+
+    /* Navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      flex-wrap: wrap;
+    }
+
+    .logo { font-size: 1.5rem; font-weight: 700; color: #0b57d0; text-decoration: none; }
+
+    .nav-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .nav-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.5rem 1rem;
+      background: #f0f0f0;
+      border-radius: 20px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: all .18s ease;
+    }
+
+    .nav-links a:hover { transform: scale(1.03); background: #e9ecef; }
+
+    .nav-buttons { display: flex; align-items: center; gap: 12px; }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+      color: white;
+    }
+
+    .btn.blue { background: var(--blue); }
+    .btn.green { background: var(--green); }
+    .btn:hover { transform: scale(1.05); box-shadow: 0 0 12px rgba(0,0,0,0.15); }
+
+    /* Login/Logout */
+    .auth-btn {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: #fff;
+      border-radius: 12px;
+      padding: 8px 16px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
+    }
+
+    .auth-btn:hover {
+      background: linear-gradient(90deg, #2563eb, #1d4ed8);
+      transform: scale(1.05);
+    }
+
+    .auth-btn.logout {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+      box-shadow: 0 3px 8px rgba(220, 38, 38, 0.25);
+    }
+
+    .auth-btn.logout:hover {
+      background: linear-gradient(90deg, #f87171, #ef4444);
+      transform: scale(1.05);
+    }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(to right, var(--blue), var(--green));
+      color: #fff;
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    .hero h1 { margin: 0; font-size: 2.5rem; font-weight: 800; letter-spacing: -0.02em; }
+    .hero p { margin: .5rem 0 0; font-size: 1.1rem; opacity: .95; }
+
+    /* Forum */
+    .forum-container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem 3rem;
+    }
+
+    .new-post {
+      background: #fff;
+      padding: 1rem 1.2rem;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      margin-bottom: 1.5rem;
+    }
+
+    .new-post textarea {
+      width: 100%;
+      min-height: 84px;
+      resize: vertical;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #e6e6e6;
+      font-size: 1rem;
+      outline: none;
+      box-sizing: border-box;
+    }
+
+    .new-post-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 8px;
+      align-items: center;
+    }
+
+    .new-post .note { color: #666; font-size: 13px; margin-top: 8px; }
+
+    .post-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      margin-bottom: 1rem;
+    }
+
+    .post-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .post-author { font-weight: 700; font-size: 1rem; color: #111; }
+    .post-role { font-size: 0.82rem; color: #666; margin-left: 8px; font-weight: 600; }
+    .post-date { color: #777; font-size: 0.9rem; }
+    .post-text { margin: 0.6rem 0; color: #222; line-height: 1.45; }
+    .post-actions { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
+    .post-actions button { background: transparent; border: none; cursor: pointer; font-weight: 700; padding: 6px; border-radius: 8px; }
+    .post-actions span.count { margin-left: 6px; color: #333; font-weight: 700; }
+
+    .comments { margin-top: 0.8rem; border-top: 1px dashed #eee; padding-top: 0.8rem; }
+    .comment { padding: 6px 0; }
+    .comment strong { color: var(--blue); font-weight: 700; }
+    .comment-input { display: flex; gap: 8px; margin-top: 8px; }
+    .comment-input input { flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #e6e6e6; }
+    .comment-input button { background: var(--blue); color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+
+    footer { text-align: center; padding: 2rem; color: #666; }
+
+    @media (max-width:720px) {
+      .nav-links { display: none; }
+      .new-post textarea { min-height: 72px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="logo">RentWatch BLR</a>
+
+    <div class="nav-links">
+      <a href="index.html"><i class="fas fa-house"></i> Home</a>
+      <a href="browse.html"><i class="fas fa-folder-open"></i> Browse Complaints</a>
+      <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+      <a href="forum.html"><i class="fas fa-comments"></i> Forum</a>
+      <a href="resources.html"><i class="fas fa-book"></i> Resources</a>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn blue" onclick="checkRoleAndNavigate('tenant','/tenant-complaint.html')">Tenant Complaint</button>
+      <button class="btn green" onclick="checkRoleAndNavigate('landlord','/landlord-complaint.html')">Landlord Complaint</button>
+      <button id="authBtn" class="auth-btn">Login</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>Discussion Forum</h1>
+    <p>Share experiences, ask questions, and support others in the rental community.</p>
+  </section>
+
+  <div class="forum-container">
+    <div class="new-post">
+      <textarea id="newPostText" placeholder="Share something with the community..."></textarea>
+      <div class="new-post-actions">
+        <button id="postBtn" class="btn blue">Post</button>
+        <button id="clearBtn" class="btn" style="background:#f3f4f6;color:#333;border:1px solid #e6e6e6;">Clear</button>
+      </div>
+      <div class="note">You must be logged in to post; login link is at top-right.</div>
+    </div>
+
+    <section id="posts"></section>
+  </div>
+
+  <footer>© 2025 RentWatch BLR · Building a Fairer Bangalore</footer>
+
+  <script>
+    // Dynamic Login/Logout
+    (function () {
+      const authBtn = document.getElementById('authBtn');
+      function refreshAuth() {
+        const token = localStorage.getItem('rw_token');
+        if (token) {
+          authBtn.textContent = 'Logout';
+          authBtn.classList.add('logout');
+          authBtn.onclick = () => {
+            localStorage.removeItem('rw_token');
+            sessionStorage.setItem('rw_logged_out','1');
+            window.location.reload();
+          };
+        } else {
+          authBtn.textContent = 'Login';
+          authBtn.classList.remove('logout');
+          authBtn.onclick = () => window.location.href = '/login.html';
+        }
+      }
+      refreshAuth();
+      window.addEventListener('storage', refreshAuth);
+    })();
+
+    // Forum logic
+    const STORAGE_KEY = 'rw_forum_posts_v1';
+    const seeds = [
+      { id: 'p1', author: 'Arjun', role: 'landlord', text: 'How do you screen tenants quickly?', likedBy:[], dislikedBy:[], comments:[{id:'c3',author:'Nisha',text:'Check references and do a quick background check.'}], createdAt: Date.now()-1000*60*60*2 }
+    ];
+
+    function parseToken() {
+      const t = localStorage.getItem('rw_token');
+      if (!t) return null;
+      try { return JSON.parse(atob(t.split('.')[1])); } catch { return null; }
+    }
+
+    function loadPosts() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) { localStorage.setItem(STORAGE_KEY, JSON.stringify(seeds)); return seeds.slice(); }
+      try { return JSON.parse(raw); } catch { localStorage.setItem(STORAGE_KEY, JSON.stringify(seeds)); return seeds.slice(); }
+    }
+
+    function savePosts(posts) { localStorage.setItem(STORAGE_KEY, JSON.stringify(posts)); }
+
+    let posts = loadPosts();
+
+    function escapeHtml(str) { return (str+'').replace(/[&<>"]/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s])); }
+
+    function getCurrentUser() {
+      const p = parseToken();
+      return p ? { id: p.id || p._id, name: p.name || 'Anonymous', role: p.role || 'tenant' } : null;
+    }
+
+    function requireLogin() {
+      if (!localStorage.getItem('rw_token')) {
+        window.location.href = '/login.html';
+        return false;
+      }
+      return true;
+    }
+
+    function render() {
+      const container = document.getElementById('posts');
+      container.innerHTML = '';
+      posts.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).forEach(p=>{
+        p.likedBy = p.likedBy || [];
+        p.dislikedBy = p.dislikedBy || [];
+        const card = document.createElement('div');
+        card.className = 'post-card';
+        const date = new Date(p.createdAt || Date.now());
+        card.innerHTML = `
+          <div class="post-header">
+            <div>
+              <span class="post-author">${escapeHtml(p.author)}</span>
+              <span class="post-role">${escapeHtml(p.role || '')}</span>
+            </div>
+            <div class="post-date">${isNaN(date.getTime()) ? 'Unknown' : date.toLocaleString()}</div>
+          </div>
+          <div class="post-text">${escapeHtml(p.text)}</div>
+          <div class="post-actions">
+            <button class="like-btn" data-id="${p.id}">👍 <span class="count">${p.likedBy.length}</span></button>
+            <button class="dislike-btn" data-id="${p.id}">👎 <span class="count">${p.dislikedBy.length}</span></button>
+          </div>
+          <div class="comments">
+            ${(p.comments||[]).map(c => `<div class="comment"><strong>${escapeHtml(c.author)}</strong>: ${escapeHtml(c.text)}</div>`).join('')}
+            <div class="comment-input">
+              <input data-id="${p.id}" class="commentInput" placeholder="Write a comment...">
+              <button data-id="${p.id}" class="postComment">Post</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      document.querySelectorAll('.like-btn').forEach(btn => btn.onclick = onLike);
+      document.querySelectorAll('.dislike-btn').forEach(btn => btn.onclick = onDislike);
+      document.querySelectorAll('.postComment').forEach(btn => btn.onclick = onComment);
+    }
+
+    function onLike(e) {
+      if (!requireLogin()) return;
+      const id = e.currentTarget.dataset.id;
+      const user = getCurrentUser(); if (!user) return;
+      const p = posts.find(x => x.id === id); if (!p) return;
+      p.likedBy = p.likedBy || []; p.dislikedBy = p.dislikedBy || [];
+      if (p.likedBy.includes(user.id)) p.likedBy = p.likedBy.filter(x => x !== user.id);
+      else { p.likedBy.push(user.id); p.dislikedBy = p.dislikedBy.filter(x => x !== user.id); }
+      savePosts(posts); render();
+    }
+
+    function onDislike(e) {
+      if (!requireLogin()) return;
+      const id = e.currentTarget.dataset.id;
+      const user = getCurrentUser(); if (!user) return;
+      const p = posts.find(x => x.id === id); if (!p) return;
+      p.likedBy = p.likedBy || []; p.dislikedBy = p.dislikedBy || [];
+      if (p.dislikedBy.includes(user.id)) p.dislikedBy = p.dislikedBy.filter(x => x !== user.id);
+      else { p.dislikedBy.push(user.id); p.likedBy = p.likedBy.filter(x => x !== user.id); }
+      savePosts(posts); render();
+    }
+
+    function onComment(e) {
+      if (!requireLogin()) return;
+      const id = e.currentTarget.dataset.id;
+      const input = document.querySelector(`.commentInput[data-id="${id}"]`);
+      const text = input.value.trim(); if (!text) return;
+      const user = getCurrentUser();
+      const p = posts.find(x => x.id === id); if (!p) return;
+      p.comments = p.comments || [];
+      p.comments.push({ id: 'c' + Math.random().toString(36).slice(2,9), author: user.name, text });
+      savePosts(posts); input.value=''; render();
+    }
+
+    document.getElementById('postBtn').onclick = () => {
+      if (!requireLogin()) return;
+      const text = document.getElementById('newPostText').value.trim();
+      if (!text) return alert('Enter some text for your post.');
+      const user = getCurrentUser();
+      posts.push({ id: 'p'+Math.random().toString(36).slice(2,9), author: user.name, role: user.role, text, likedBy:[], dislikedBy:[], comments:[], createdAt: Date.now() });
+      savePosts(posts); document.getElementById('newPostText').value=''; render();
+    };
+
+    document.getElementById('clearBtn').onclick = () => document.getElementById('newPostText').value='';
+
+    function checkRoleAndNavigate(role, dest) {
+      const p = parseToken();
+      if (!p) return window.location.href = '/login.html';
+      if (p.role !== role) return alert(`You must be logged in as a ${role} to access this page.`);
+      window.location.href = dest;
+    }
+
+    render();
+  </script>
+</body>
+</html>

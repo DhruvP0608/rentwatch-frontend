@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Browse Complaints - RentWatch BLR</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <style>
+    :root {
+      --blue: #007bff;
+      --green: #16a34a;
+      --muted: #f0f3f6;
+      --card-bg: #fff;
+      --accent: #0b63ff;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+      background: #f5f7fa;
+      color: #1f2937;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 22px;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(3,7,18,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      flex-wrap: wrap;
+    }
+    .logo {
+      font-weight: 700;
+      color: #0b5ef5;
+      text-decoration: none;
+      font-size: 1.3rem;
+    }
+    .nav-links {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .nav-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: var(--muted);
+      border-radius: 22px;
+      text-decoration: none;
+      color: #111;
+      font-weight: 600;
+      font-size: 0.95rem;
+      box-shadow: none;
+    }
+    .nav-links a:hover {
+      transform: translateY(-1px);
+    }
+
+    /* RIGHT SIDE BUTTONS */
+    .nav-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .bubble-btn {
+      padding: 8px 16px;
+      border-radius: 22px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(15,23,42,0.06);
+    }
+    .bubble-btn.tenant { background: var(--blue); }
+    .bubble-btn.landlord { background: var(--green); }
+
+    /* Login / Logout Button */
+    .auth-btn {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: #fff;
+      border-radius: 12px;
+      padding: 8px 16px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
+    }
+    .auth-btn:hover {
+      background: linear-gradient(90deg, #2563eb, #1d4ed8);
+      transform: scale(1.05);
+    }
+    .auth-btn.logout {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+      color: #fff;
+      box-shadow: 0 3px 8px rgba(220, 38, 38, 0.25);
+    }
+    .auth-btn.logout:hover {
+      background: linear-gradient(90deg, #f87171, #ef4444);
+      transform: scale(1.05);
+    }
+
+    /* HERO */
+    .hero {
+      padding: 48px 20px;
+      text-align: center;
+      background: linear-gradient(90deg, var(--blue), var(--green));
+      color: #fff;
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: 2.6rem;
+      font-weight: 800;
+    }
+    .hero p {
+      margin: 10px 0 0;
+      font-size: 1.05rem;
+      opacity: 0.95;
+    }
+
+    /* GRID */
+    .complaints-wrap {
+      padding: 28px 28px 80px;
+      display: flex;
+      justify-content: center;
+    }
+    .complaints-grid {
+      width: 100%;
+      max-width: 1180px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 22px;
+    }
+
+    /* CARD */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(11,22,45,0.06);
+      position: relative;
+      overflow: hidden;
+      border-top: 6px solid var(--blue);
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 18px 36px rgba(11,22,45,0.08);
+    }
+    .card h3 {
+      margin: 0 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.15rem;
+    }
+    .card h3 i { font-size: 1.15rem; }
+    .card .title {
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #111;
+    }
+    .card .desc {
+      color: #3b3b3b;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .card small {
+      color: #6b7280;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .status {
+      display: inline-block;
+      background: #d1fae5;
+      color: #065f46;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      border-top: 1px solid #eef2f6;
+      padding-top: 12px;
+      font-size: 0.95rem;
+      color: #374151;
+    }
+
+    .likeBtn, .dislikeBtn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #1f2937;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .likeBtn i { color: #0b63ff; }
+    .dislikeBtn i { color: #6b7280; }
+    .count { font-weight: 700; color: #374151; }
+
+    .empty {
+      padding: 40px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 1.05rem;
+    }
+
+    footer {
+      padding: 26px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 0.9rem;
+      background: transparent;
+    }
+
+    @media (max-width:520px){
+      .hero h1 { font-size: 1.6rem; padding: 0 8px; }
+      .nav-links a { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <a class="logo" href="index.html">RentWatch BLR</a>
+    <div class="nav-links">
+      <a href="index.html"><i class="fas fa-house"></i> Home</a>
+      <a href="browse.html"><i class="fas fa-folder-open"></i> Browse Complaints</a>
+      <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+      <a href="forum.html"><i class="fas fa-comments"></i> Forum</a>
+      <a href="resources.html"><i class="fas fa-book"></i> Resources</a>
+    </div>
+
+    <div class="nav-actions">
+      <button class="bubble-btn tenant" onclick="checkRoleAndNavigate('tenant','/tenant-complaint.html')">Tenant Complaint</button>
+      <button class="bubble-btn landlord" onclick="checkRoleAndNavigate('landlord','/landlord-complaint.html')">Landlord Complaint</button>
+      <button id="authBtn" class="auth-btn">Login</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>Browse Complaints</h1>
+    <p>Explore issues raised by tenants and landlords across Bangalore.</p>
+  </section>
+
+  <main class="complaints-wrap">
+    <div class="complaints-grid" id="complaintsGrid"></div>
+  </main>
+
+  <footer>© 2025 RentWatch BLR · Building a Fairer Bangalore</footer>
+
+  <script>
+    // Toggle Login/Logout button dynamically
+    (function () {
+      const authBtn = document.getElementById('authBtn');
+
+      function refreshAuth() {
+        const token = localStorage.getItem('rw_token');
+
+        if (token) {
+          authBtn.textContent = 'Logout';
+          authBtn.classList.add('logout');
+          authBtn.onclick = (e) => {
+            e.preventDefault();
+            localStorage.removeItem('rw_token');
+            sessionStorage.setItem('rw_logged_out', '1');
+            window.location.reload();
+          };
+        } else {
+          authBtn.textContent = 'Login';
+          authBtn.classList.remove('logout');
+          authBtn.onclick = () => window.location.href = '/login.html';
+        }
+      }
+
+      refreshAuth();
+      window.addEventListener('storage', refreshAuth);
+    })();
+
+    // Detect role helper
+    function detectRole(c) {
+      const cand = (
+        c.role ?? c.type ?? c.typeName ?? c.user?.role ??
+        c.filedBy?.role ?? c.complainant?.role ??
+        c.complainantRole ?? c.userRole ?? c.userType ??
+        c.creatorRole ?? ""
+      );
+      if (!cand) return "";
+      try { return String(cand).toLowerCase(); } catch { return ""; }
+    }
+
+    function formatDate(d) {
+      if (!d) return "Unknown date";
+      const dt = (typeof d === 'string' || typeof d === 'number') ? new Date(d) : d;
+      if (isNaN(dt)) return "Unknown date";
+      return dt.toLocaleString();
+    }
+
+    // Render complaints
+    async function renderComplaints() {
+      const grid = document.getElementById('complaintsGrid');
+      grid.innerHTML = '<div style="grid-column:1/-1;height:6px"></div>';
+      try {
+        const res = await fetch('/api/public/complaints');
+        if (!res.ok) {
+          grid.innerHTML = '<div class="empty">Failed to load complaints. Try again later.</div>';
+          return;
+        }
+        const complaints = await res.json();
+        if (!Array.isArray(complaints) || complaints.length === 0) {
+          grid.innerHTML = '<div class="empty">No complaints yet — be the first to file one.</div>';
+          return;
+        }
+
+        grid.innerHTML = '';
+        complaints.forEach(c => {
+          const id = c.id ?? c._id ?? c._id?.$oid ?? '';
+          const roleLower = detectRole(c);
+          const isTenant = roleLower.includes('tenant');
+          const headerColor = isTenant ? getComputedStyle(document.documentElement).getPropertyValue('--blue') : getComputedStyle(document.documentElement).getPropertyValue('--green');
+          const icon = isTenant ? 'fa-user' : 'fa-building';
+
+          const likes = (c.likes ?? c.upvotes ?? c.ups ?? 0);
+          const dislikes = (c.dislikes ?? c.downvotes ?? c.downs ?? 0);
+
+          let createdAt = c.date ?? c.createdAt ?? c.created_on ?? c.created;
+          if (!createdAt && typeof (c.id ?? c._id) === 'string' && (c._id ?? c.id).length >= 8) {
+            try {
+              const hex = (c._id ?? c.id).substring(0, 8);
+              const ts = parseInt(hex, 16) * 1000;
+              createdAt = new Date(ts);
+            } catch {}
+          }
+
+          const card = document.createElement('article');
+          card.className = 'card';
+          card.style.borderTopColor = headerColor;
+
+          card.innerHTML = `
+            <h3 style="color:${headerColor}"><i class="fa-solid ${icon}"></i> ${isTenant ? 'Tenant Complaint' : 'Landlord Complaint'}</h3>
+            <div class="title">${(c.issueType ?? c.title ?? 'Untitled Complaint')}</div>
+            <div class="desc">${(c.description ?? c.body ?? c.text ?? 'No description provided.')}</div>
+            <small>Filed on: ${formatDate(createdAt)}</small>
+            <div><span class="status">${c.status ?? 'Pending'}</span></div>
+            <div class="card-footer">
+              <button class="likeBtn" title="Like"><i class="fa-regular fa-thumbs-up"></i> <span class="count">${likes}</span></button>
+              <button class="dislikeBtn" title="Dislike"><i class="fa-regular fa-thumbs-down"></i> <span class="count">${dislikes}</span></button>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      } catch (err) {
+        console.error(err);
+        grid.innerHTML = '<div class="empty">Could not load complaints — check backend & network.</div>';
+      }
+    }
+
+    renderComplaints();
+    setInterval(renderComplaints, 10000);
+
+    function checkRoleAndNavigate(requiredRole, destination) {
+      const token = localStorage.getItem('rw_token');
+      if (!token) return window.location.href = '/login.html';
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.role !== requiredRole) {
+          alert(`You must be logged in as a ${requiredRole} to access this page.`);
+          return;
+        }
+        window.location.href = destination;
+      } catch (e) {
+        console.error(e);
+        window.location.href = '/login.html';
+      }
+    }
+  </script>
+</body>
+</html>
+

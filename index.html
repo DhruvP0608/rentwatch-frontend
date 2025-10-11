@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RentWatch BLR - Home</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #007BFF, #28A745);
+      color: #fff;
+      scroll-behavior: smooth;
+    }
+
+    /* Navbar */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #333;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.5rem 1rem;
+      background-color: #f0f0f0;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: 500;
+      color: #333;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      background-color: #e0e0e0;
+      transform: scale(1.05);
+    }
+
+    .nav-buttons button {
+      margin-left: 0.75rem;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      transition: transform 0.2s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn.blue { background-color: #007BFF; color: #fff; }
+    .btn.green { background-color: #28A745; color: #fff; }
+    .btn:hover { transform: scale(1.05); }
+
+    /* Login / Logout button styling */
+    /* Login / Logout button styling (improved) */
+.auth-btn {
+  background: linear-gradient(90deg, #3b82f6, #2563eb); /* vibrant blue */
+  color: #fff;
+  border-radius: 10px;
+  padding: 8px 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
+}
+
+.auth-btn:hover {
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  transform: scale(1.05);
+}
+
+.auth-btn.logout {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.25);
+}
+
+.auth-btn.logout:hover {
+  background: linear-gradient(90deg, #f87171, #ef4444);
+  transform: scale(1.05);
+}
+
+
+    /* Hero section */
+    .hero {
+      text-align: center;
+      padding: 3rem 2rem;
+      position: relative;
+    }
+
+    #welcomeArea {
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 1.2s ease, transform 1s ease;
+      font-size: 1.7rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+      color: #fff;
+    }
+
+    #welcomeArea.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Cards */
+    .cards {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background-color: #ffffff;
+      padding: 2.5rem 2rem;
+      border-radius: 28px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      width: 320px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      color: #333;
+      text-align: center;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .card i {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card h2 {
+      font-size: 1.4rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .card p {
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      color: #555;
+    }
+
+    .card .btn {
+      display: inline-block;
+      width: min(80%, 260px);
+      margin: 0.8rem auto 0;
+      padding: 0.9rem 1.25rem;
+      border-radius: 999px;
+      font-weight: 700;
+      text-decoration: none !important;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+      text-align: center;
+      appearance: none;
+    }
+
+    .card .btn.blue { background: #007BFF; color: #fff; }
+    .card .btn.green { background: #28A745; color: #fff; }
+
+    .card .btn:hover {
+      transform: translateY(-3px);
+      opacity: 0.97;
+      text-decoration: none !important;
+    }
+
+    /* Features section */
+    .features-box {
+      padding: 3rem 2rem;
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .features {
+      display: flex;
+      justify-content: center;
+      gap: 4rem;
+      flex-wrap: wrap;
+    }
+
+    .features div {
+      max-width: 250px;
+      transition: transform 0.3s ease;
+    }
+
+    .features div:hover { transform: translateY(-5px); }
+
+    .features i { font-size: 2.5rem; margin-bottom: 1rem; color: #ffffff; }
+    .features h3 { margin-bottom: 0.5rem; font-size: 1.2rem; color: #ffffff; }
+    .features p { font-size: 1rem; line-height: 1.5; color: #f0f8ff; }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.9rem;
+      color: #007BFF;
+      background: #fff;
+      border-top: 1px solid #eee;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="index.html" class="logo">RentWatch BLR</a>
+    <div class="nav-links">
+      <a href="index.html"><i class="fas fa-house"></i>Home</a>
+      <a href="browse.html"><i class="fas fa-folder-open"></i>Browse Complaints</a>
+      <a href="notifications.html"><i class="fas fa-bell"></i>Notifications</a>
+      <a href="forum.html"><i class="fas fa-comments"></i>Forum</a>
+      <a href="resources.html"><i class="fas fa-book"></i>Resources</a>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn blue" onclick="checkRoleAndNavigate('tenant','/tenant-complaint.html')">Tenant Complaint</button>
+      <button class="btn green" onclick="checkRoleAndNavigate('landlord','/landlord-complaint.html')">Landlord Complaint</button>
+      <button id="authBtn" class="btn auth-btn">Login</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero">
+    <div id="welcomeArea"></div>
+    <h1>A One Stop Platform for Fair & Transparent Renting in Bangalore</h1>
+    <p>Raise your concerns, support others, and build a better rental community.</p>
+
+    <div class="cards">
+      <div class="card white-bg">
+        <i class="fas fa-user" style="color: #007BFF;"></i>
+        <h2>I’m a Tenant</h2>
+        <p>Report discrimination, illegal deposits, rent hikes, harassment, or poor living conditions.</p>
+        <a href="tenant-complaint.html" class="btn blue">File Tenant Complaint</a>
+      </div>
+
+      <div class="card white-bg">
+        <i class="fas fa-home" style="color: #28A745;"></i>
+        <h2>I’m a Landlord</h2>
+        <p>Report unpaid rent, property damage, irresponsible tenants, or lease violations.</p>
+        <a href="landlord-complaint.html" class="btn green">File Landlord Complaint</a>
+      </div>
+    </div>
+
+    <div class="features-box">
+      <div class="features">
+        <div>
+          <i class="fas fa-clipboard-check"></i>
+          <h3>Track Complaints</h3>
+          <p>Monitor progress and get updates on your submitted complaints.</p>
+        </div>
+        <div>
+          <i class="fas fa-users"></i>
+          <h3>Community Support</h3>
+          <p>Get support from others facing similar rental challenges.</p>
+        </div>
+        <div>
+          <i class="fas fa-comments"></i>
+          <h3>Discussion Forum</h3>
+          <p>Share experiences and get advice from the community.</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <footer>
+    © 2025 RentWatch BLR · Building a Fairer Bangalore
+  </footer>
+
+  <script>
+    (function () {
+      const authBtn = document.getElementById('authBtn');
+      const welcomeArea = document.getElementById('welcomeArea');
+
+      function refreshAuth() {
+        const token = localStorage.getItem('rw_token');
+
+        if (token) {
+          // Logged in
+          authBtn.textContent = 'Logout';
+          authBtn.classList.add('logout');
+          authBtn.onclick = (e) => {
+            e.preventDefault();
+            localStorage.removeItem('rw_token');
+            sessionStorage.setItem('rw_logged_out', '1');
+            window.location.reload();
+          };
+
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const name = payload.name || payload.email || 'User';
+            const firstName = name.split(' ')[0];
+            welcomeArea.textContent = `Welcome back, ${firstName} 👋`;
+            setTimeout(() => welcomeArea.classList.add('visible'), 150);
+          } catch {
+            welcomeArea.style.display = 'none';
+          }
+
+        } else {
+          // Logged out
+          authBtn.textContent = 'Login';
+          authBtn.classList.remove('logout');
+          authBtn.onclick = () => window.location.href = '/login.html';
+          welcomeArea.style.display = 'none';
+        }
+      }
+
+      refreshAuth();
+      window.addEventListener('storage', refreshAuth);
+    })();
+
+    function checkRoleAndNavigate(requiredRole, destination) {
+      const token = localStorage.getItem('rw_token');
+      if (!token) return window.location.href = '/login.html';
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.role !== requiredRole) {
+          alert(`You must be logged in as a ${requiredRole} to access this page.`);
+          return;
+        }
+        window.location.href = destination;
+      } catch (e) {
+        console.error('Invalid token', e);
+        window.location.href = '/login.html';
+      }
+    }
+  </script>
+</body>
+</html>

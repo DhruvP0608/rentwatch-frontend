@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Login - RentWatch BLR</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --blue: #007bff;
+      --green: #22c55e;
+      --bg: #f9fafb;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #222;
+    }
+
+    a {
+      color: #6b21a8;
+      text-decoration: none;
+      font-weight: 600;
+      position: absolute;
+      top: 24px;
+      left: 24px;
+    }
+    a:hover { text-decoration: underline; }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .form-container {
+      position: relative;
+      width: 400px;
+      max-width: 90%;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      overflow: hidden;
+      padding: 30px 30px 40px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    form.hidden {
+      opacity: 0;
+      transform: translateY(-15px);
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    input, select {
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      font-size: 1rem;
+      background: #f0f7ff;
+      outline: none;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 6px rgba(37,99,235,0.2);
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: flex-start;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.25s ease;
+      color: #fff;
+      flex: 1;
+      text-align: center;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .blue-btn { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+    .green-btn { background: linear-gradient(90deg, #16a34a, #15803d); }
+    .gray-btn { background: #9ca3af; }
+
+    /* Success Popup */
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.9);
+      background: #fff;
+      border-radius: 16px;
+      padding: 40px 50px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      text-align: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s ease;
+    }
+
+    .popup.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      pointer-events: auto;
+    }
+
+    .popup i {
+      font-size: 48px;
+      color: #22c55e;
+      margin-bottom: 10px;
+      animation: pop 0.5s ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.3); opacity: 0; }
+      80% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); }
+    }
+
+    .popup h2 {
+      margin: 10px 0 5px;
+      font-size: 1.4rem;
+      color: #111;
+    }
+
+    .popup p {
+      font-size: 1rem;
+      color: #555;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.6rem; }
+      .form-container { padding: 24px; }
+      button { font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html">← Home</a>
+  <h1>Login or Register</h1>
+
+  <div class="form-container">
+    <!-- LOGIN FORM -->
+    <form id="loginForm">
+      <input name="email" type="email" placeholder="Email" required>
+      <input name="password" type="password" placeholder="Password" required>
+      <div class="btn-row">
+        <button type="submit" class="blue-btn">Login</button>
+        <button type="button" id="showRegister" class="green-btn">Register</button>
+      </div>
+    </form>
+
+    <!-- REGISTER FORM -->
+    <form id="registerForm" class="hidden">
+      <input name="name" placeholder="Full name" required>
+      <input name="email" type="email" placeholder="Email" required>
+      <input name="password" type="password" placeholder="Password" required>
+      <select name="role" required>
+        <option value="">Select role</option>
+        <option value="tenant">Tenant</option>
+        <option value="landlord">Landlord</option>
+      </select>
+      <div class="btn-row">
+        <button type="submit" class="green-btn">Create Account</button>
+        <button type="button" id="cancelRegister" class="gray-btn">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- SUCCESS POPUP -->
+  <div id="successPopup" class="popup">
+    <i class="fa-solid fa-circle-check"></i>
+    <h2>Login Successful!</h2>
+    <p>Redirecting to RentWatch BLR...</p>
+  </div>
+
+  <script>
+    const BACKEND_URL = "http://localhost:3000";
+
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const popup = document.getElementById('successPopup');
+    const showRegister = document.getElementById('showRegister');
+    const cancelRegister = document.getElementById('cancelRegister');
+
+    // Toggle forms smoothly
+    showRegister.addEventListener('click', () => {
+      loginForm.classList.add('hidden');
+      setTimeout(() => registerForm.classList.remove('hidden'), 300);
+    });
+
+    cancelRegister.addEventListener('click', () => {
+      registerForm.classList.add('hidden');
+      setTimeout(() => loginForm.classList.remove('hidden'), 300);
+    });
+
+    // LOGIN
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = loginForm.email.value.trim();
+      const password = loginForm.password.value.trim();
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Login failed');
+
+        localStorage.setItem('rw_token', data.token);
+
+        // Success animation
+        popup.classList.add('show');
+        setTimeout(() => {
+          popup.classList.remove('show');
+          window.location.href = 'index.html';
+        }, 1600);
+
+      } catch (err) {
+        alert(err.message || 'Login failed');
+      }
+    });
+
+    // REGISTER
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = registerForm.name.value.trim();
+      const email = registerForm.email.value.trim();
+      const password = registerForm.password.value.trim();
+      const role = registerForm.role.value;
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, role })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Register failed');
+
+        alert('✅ Account created! You can now log in.');
+        registerForm.classList.add('hidden');
+        setTimeout(() => loginForm.classList.remove('hidden'), 300);
+      } catch (err) {
+        alert(err.message || 'Register failed');
+      }
+    });
+  </script>
+</body>
+</html>
