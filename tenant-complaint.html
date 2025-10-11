@@ -265,7 +265,8 @@
     // Verify tenant role
     (function() {
       const token = localStorage.getItem('rw_token');
-      if (!token) return window.location.href = '/login.html';
+      if (!token) return window.location.href = '/rentwatch-frontend/login.html';
+
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         if (payload.role !== 'tenant') {
@@ -273,7 +274,8 @@
           window.location.href = '/';
         }
       } catch {
-        window.location.href = '/login.html';
+        window.location.href = '/rentwatch-frontend/login.html';
+
       }
     })();
 
@@ -297,7 +299,8 @@
     form.addEventListener('submit', async e => {
       e.preventDefault();
       const token = localStorage.getItem('rw_token');
-      if (!token) return window.location.href = '/login.html';
+      if (!token) return window.location.href = '/rentwatch-frontend/login.html';
+
 
       const payload = {
         complainedUserId: document.getElementById('targetUser').value,

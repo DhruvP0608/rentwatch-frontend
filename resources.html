@@ -339,7 +339,8 @@
         } else {
           authBtn.textContent = 'Login';
           authBtn.classList.remove('logout');
-          authBtn.onclick = () => window.location.href = '/login.html';
+          authBtn.onclick = () => window.location.href = '/rentwatch-frontend/login.html';
+
         }
       }
       refreshAuth();
@@ -355,7 +356,8 @@
 
     function checkRoleAndNavigate(role, dest) {
       const p = parseToken();
-      if (!p) return window.location.href = '/login.html';
+      if (!p) return window.location.href = '/rentwatch-frontend/login.html';
+
       if (p.role !== role) return alert(`You must be logged in as a ${role}.`);
       window.location.href = dest;
     }

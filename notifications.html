@@ -212,7 +212,8 @@
         } else {
           authBtn.textContent = 'Login';
           authBtn.classList.remove('logout');
-          authBtn.onclick = () => window.location.href = '/login.html';
+          authBtn.onclick = () => window.location.href = '/rentwatch-frontend/login.html';
+
         }
       }
 
@@ -305,7 +306,8 @@
     // 🔐 Role-based navigation
     function checkRoleAndNavigate(role, destination) {
       const token = localStorage.getItem('rw_token');
-      if (!token) return window.location.href = '/login.html';
+      if (!token) return window.location.href = '/rentwatch-frontend/login.html';
+
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         if (payload.role !== role) {
@@ -314,7 +316,8 @@
         }
         window.location.href = destination;
       } catch {
-        window.location.href = '/login.html';
+        window.location.href = '/rentwatch-frontend/login.html';
+
       }
     }
 

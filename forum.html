@@ -237,7 +237,8 @@
         } else {
           authBtn.textContent = 'Login';
           authBtn.classList.remove('logout');
-          authBtn.onclick = () => window.location.href = '/login.html';
+          authBtn.onclick = () => window.location.href = '/rentwatch-frontend/login.html';
+
         }
       }
       refreshAuth();
@@ -275,7 +276,8 @@
 
     function requireLogin() {
       if (!localStorage.getItem('rw_token')) {
-        window.location.href = '/login.html';
+        window.location.href = '/rentwatch-frontend/login.html';
+
         return false;
       }
       return true;
@@ -366,7 +368,8 @@
 
     function checkRoleAndNavigate(role, dest) {
       const p = parseToken();
-      if (!p) return window.location.href = '/login.html';
+      if (!p) return window.location.href = '/rentwatch-frontend/login.html';
+
       if (p.role !== role) return alert(`You must be logged in as a ${role} to access this page.`);
       window.location.href = dest;
     }

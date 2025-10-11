@@ -344,7 +344,8 @@
           // Logged out
           authBtn.textContent = 'Login';
           authBtn.classList.remove('logout');
-          authBtn.onclick = () => window.location.href = '/login.html';
+          authBtn.onclick = () => window.location.href = '/rentwatch-frontend/login.html';
+
           welcomeArea.style.display = 'none';
         }
       }
@@ -355,7 +356,8 @@
 
     function checkRoleAndNavigate(requiredRole, destination) {
       const token = localStorage.getItem('rw_token');
-      if (!token) return window.location.href = '/login.html';
+      if (!token) return window.location.href = '/rentwatch-frontend/login.html';
+
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         if (payload.role !== requiredRole) {
@@ -365,7 +367,8 @@
         window.location.href = destination;
       } catch (e) {
         console.error('Invalid token', e);
-        window.location.href = '/login.html';
+        window.location.href = '/rentwatch-frontend/login.html';
+
       }
     }
   </script>
