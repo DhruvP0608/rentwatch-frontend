@@ -78,7 +78,6 @@
     .btn.green { background: #28a745; }
     .btn:hover { transform: scale(1.05); box-shadow: 0 0 12px rgba(0,0,0,0.15); }
 
-    /* Login / Logout */
     .auth-btn {
       background: linear-gradient(90deg, #3b82f6, #2563eb);
       color: #fff;
@@ -91,23 +90,10 @@
       box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
     }
 
-    .auth-btn:hover {
-      background: linear-gradient(90deg, #2563eb, #1d4ed8);
-      transform: scale(1.05);
-    }
-
     .auth-btn.logout {
       background: linear-gradient(90deg, #ef4444, #dc2626);
-      color: #fff;
-      box-shadow: 0 3px 8px rgba(220, 38, 38, 0.25);
     }
 
-    .auth-btn.logout:hover {
-      background: linear-gradient(90deg, #f87171, #ef4444);
-      transform: scale(1.05);
-    }
-
-    /* Hero */
     .hero {
       background: linear-gradient(to right, #007bff, #28a745);
       color: #fff;
@@ -204,6 +190,8 @@
   <footer>© 2025 RentWatch BLR · Building a Fairer Bangalore</footer>
 
   <script>
+    // ✅ Use live backend
+    const BACKEND_URL = "https://rentwatch-backend.onrender.com";
     const notifContainer = document.getElementById('notifList');
 
     // Dynamic Login/Logout toggle
@@ -212,7 +200,6 @@
 
       function refreshAuth() {
         const token = localStorage.getItem('rw_token');
-
         if (token) {
           authBtn.textContent = 'Logout';
           authBtn.classList.add('logout');
@@ -233,6 +220,7 @@
       window.addEventListener('storage', refreshAuth);
     })();
 
+    // 🔔 Load Notifications
     async function loadNotifications() {
       const token = localStorage.getItem('rw_token');
       if (!token) {
@@ -241,7 +229,7 @@
       }
 
       try {
-        const res = await fetch('/api/notifications', {
+        const res = await fetch(`${BACKEND_URL}/api/notifications`, {
           headers: { 'Authorization': 'Bearer ' + token }
         });
 
@@ -283,13 +271,14 @@
       }
     }
 
+    // ✅ Resolve Complaint API
     async function resolveComplaint(id, btn) {
       const token = localStorage.getItem('rw_token');
       btn.disabled = true;
       btn.innerText = 'Resolving...';
 
       try {
-        const res = await fetch(`/api/complaints/${id}/resolve`, {
+        const res = await fetch(`${BACKEND_URL}/api/complaints/${id}/resolve`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -313,6 +302,7 @@
       }
     }
 
+    // 🔐 Role-based navigation
     function checkRoleAndNavigate(role, destination) {
       const token = localStorage.getItem('rw_token');
       if (!token) return window.location.href = '/login.html';
