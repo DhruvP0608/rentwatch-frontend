@@ -148,6 +148,24 @@
       font-size: 1.05rem;
     }
 
+    .card-footer {
+      display: flex;
+      justify-content: flex-start;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .likeBtn, .dislikeBtn {
+      background: #f3f4f6;
+      border: none;
+      border-radius: 20px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s ease;
+    }
+    .likeBtn:hover { background: #e0f2fe; }
+    .dislikeBtn:hover { background: #fee2e2; }
+
     footer {
       padding: 26px;
       text-align: center;
@@ -159,17 +177,17 @@
 <body>
 
   <nav class="navbar">
-    <a class="logo" href="index.html">RentWatch BLR</a>
+    <a class="logo" href="/rentwatch-frontend/index.html">RentWatch BLR</a>
     <div class="nav-links">
-      <a href="index.html"><i class="fas fa-house"></i> Home</a>
-      <a href="browse.html"><i class="fas fa-folder-open"></i> Browse Complaints</a>
-      <a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a>
-      <a href="forum.html"><i class="fas fa-comments"></i> Forum</a>
-      <a href="resources.html"><i class="fas fa-book"></i> Resources</a>
+      <a href="/rentwatch-frontend/index.html"><i class="fas fa-house"></i> Home</a>
+      <a href="/rentwatch-frontend/browse.html"><i class="fas fa-folder-open"></i> Browse Complaints</a>
+      <a href="/rentwatch-frontend/notifications.html"><i class="fas fa-bell"></i> Notifications</a>
+      <a href="/rentwatch-frontend/forum.html"><i class="fas fa-comments"></i> Forum</a>
+      <a href="/rentwatch-frontend/resources.html"><i class="fas fa-book"></i> Resources</a>
     </div>
     <div class="nav-actions">
-      <button class="bubble-btn tenant" onclick="checkRoleAndNavigate('tenant','/tenant-complaint.html')">Tenant Complaint</button>
-      <button class="bubble-btn landlord" onclick="checkRoleAndNavigate('landlord','/landlord-complaint.html')">Landlord Complaint</button>
+      <button class="bubble-btn tenant" onclick="checkRoleAndNavigate('tenant','/rentwatch-frontend/tenant-complaint.html')">Tenant Complaint</button>
+      <button class="bubble-btn landlord" onclick="checkRoleAndNavigate('landlord','/rentwatch-frontend/landlord-complaint.html')">Landlord Complaint</button>
       <button id="authBtn" class="auth-btn">Login</button>
     </div>
   </nav>
@@ -188,7 +206,7 @@
   <script>
     const BACKEND_URL = "https://rentwatch-backend.onrender.com";
 
-    // Toggle Login/Logout
+    // --- AUTH BUTTON LOGIC ---
     (function () {
       const authBtn = document.getElementById('authBtn');
       function refreshAuth() {
@@ -206,19 +224,20 @@
           authBtn.textContent = 'Login';
           authBtn.classList.remove('logout');
           authBtn.onclick = () => window.location.href = '/rentwatch-frontend/login.html';
-
         }
       }
       refreshAuth();
       window.addEventListener('storage', refreshAuth);
     })();
 
+    // --- DATE FORMATTER ---
     function formatDate(d) {
       if (!d) return "Unknown date";
       const dt = new Date(d);
       return dt.toLocaleString();
     }
 
+    // --- RENDER COMPLAINTS ---
     async function renderComplaints() {
       const grid = document.getElementById('complaintsGrid');
       grid.innerHTML = '<div style="grid-column:1/-1;height:6px"></div>';
@@ -228,6 +247,7 @@
           grid.innerHTML = '<div class="empty">Failed to load complaints. Try again later.</div>';
           return;
         }
+
         const complaints = await res.json();
         if (!complaints.length) {
           grid.innerHTML = '<div class="empty">No complaints yet — be the first to file one.</div>';
@@ -246,13 +266,42 @@
             <h3><i class="fa-solid ${c.role === 'tenant' ? 'fa-user' : 'fa-building'}"></i> ${c.role === 'tenant' ? 'Tenant' : 'Landlord'} Complaint</h3>
             <div class="title">${c.issueType || 'No title'}</div>
             <div class="desc">${c.description || 'No description provided.'}</div>
-            <small>Filed on: ${formatDate(c.createdAt)}</small>
+            <small>Filed on: ${formatDate(c.createdAt || c.date || c.timestamp)}</small>
             <div><span class="status">${c.status || 'Pending'}</span></div>
             <div class="card-footer">
               <button class="likeBtn"><i class="fa-regular fa-thumbs-up"></i> ${likes}</button>
               <button class="dislikeBtn"><i class="fa-regular fa-thumbs-down"></i> ${dislikes}</button>
             </div>
           `;
+
+          // --- Like Button ---
+          card.querySelector('.likeBtn').addEventListener('click', async () => {
+            try {
+              const res = await fetch(`${BACKEND_URL}/api/public/complaints/${id}/like`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+              });
+              if (res.ok) renderComplaints();
+              else alert("Couldn't like this complaint. Try again later.");
+            } catch (err) {
+              console.error('Error liking complaint:', err);
+            }
+          });
+
+          // --- Dislike Button ---
+          card.querySelector('.dislikeBtn').addEventListener('click', async () => {
+            try {
+              const res = await fetch(`${BACKEND_URL}/api/public/complaints/${id}/dislike`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+              });
+              if (res.ok) renderComplaints();
+              else alert("Couldn't dislike this complaint. Try again later.");
+            } catch (err) {
+              console.error('Error disliking complaint:', err);
+            }
+          });
+
           grid.appendChild(card);
         });
       } catch (err) {
@@ -261,9 +310,13 @@
       }
     }
 
-    renderComplaints();
-    setInterval(renderComplaints, 10000);
+    // safer looping render
+    (async function loopRender() {
+      await renderComplaints();
+      setInterval(renderComplaints, 10000);
+    })();
 
+    // --- ROLE CHECK NAVIGATION ---
     function checkRoleAndNavigate(requiredRole, destination) {
       const token = localStorage.getItem('rw_token');
       if (!token) return window.location.href = '/rentwatch-frontend/login.html';
@@ -277,7 +330,6 @@
         window.location.href = destination;
       } catch {
         window.location.href = '/rentwatch-frontend/login.html';
-
       }
     }
   </script>
