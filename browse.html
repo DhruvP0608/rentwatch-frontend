@@ -267,7 +267,16 @@
           <div class="title">${c.issueType || 'No title'}</div>
           <div class="desc">${c.description || 'No description provided.'}</div>
           <small>Filed on: ${formatDate(c.createdAt || c.date || c.timestamp)}</small>
-          <div><span class="status">${c.status || 'Pending'}</span></div>
+          <div class="status" style="margin-top:6px;font-weight:600;">
+  ${
+    c.verified
+      ? '<span style="color:#16a34a;">Resolved ✅</span>'
+      : c.status === 'Awaiting Verification'
+      ? '<span style="color:#2563eb;">Awaiting Verification ⏳</span>'
+      : '<span style="color:#dc2626;">Pending 🔴</span>'
+  }
+</div>
+
           <div class="card-footer">
             <button class="likeBtn"><i class="fa-regular fa-thumbs-up"></i> ${likes}</button>
             <button class="dislikeBtn"><i class="fa-regular fa-thumbs-down"></i> ${dislikes}</button>
