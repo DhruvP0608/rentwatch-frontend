@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RentWatch BLR - Home</title>
-  <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <style>
@@ -62,51 +61,33 @@
       transform: scale(1.05);
     }
 
-    .nav-buttons button {
-      margin-left: 0.75rem;
-      text-decoration: none;
-      font-weight: 500;
-      padding: 0.5rem 1rem;
+    /* Unified Login/Logout button */
+    .auth-btn {
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      color: #fff;
       border-radius: 999px;
-      transition: transform 0.2s ease;
+      padding: 0.6rem 1.4rem;
+      font-weight: 600;
       border: none;
       cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
     }
 
-    .btn.blue { background-color: #007BFF; color: #fff; }
-    .btn.green { background-color: #28A745; color: #fff; }
-    .btn:hover { transform: scale(1.05); }
+    .auth-btn:hover {
+      background: linear-gradient(90deg, #2563eb, #1d4ed8);
+      transform: translateY(-2px);
+    }
 
-    /* Login / Logout button styling */
-    /* Login / Logout button styling (improved) */
-.auth-btn {
-  background: linear-gradient(90deg, #3b82f6, #2563eb); /* vibrant blue */
-  color: #fff;
-  border-radius: 10px;
-  padding: 8px 16px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
-}
+    .auth-btn.logout {
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+      box-shadow: 0 4px 10px rgba(220, 38, 38, 0.25);
+    }
 
-.auth-btn:hover {
-  background: linear-gradient(90deg, #2563eb, #1d4ed8);
-  transform: scale(1.05);
-}
-
-.auth-btn.logout {
-  background: linear-gradient(90deg, #ef4444, #dc2626);
-  color: #fff;
-  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.25);
-}
-
-.auth-btn.logout:hover {
-  background: linear-gradient(90deg, #f87171, #ef4444);
-  transform: scale(1.05);
-}
-
+    .auth-btn.logout:hover {
+      background: linear-gradient(90deg, #f87171, #ef4444);
+      transform: translateY(-2px);
+    }
 
     /* Hero section */
     .hero {
@@ -168,9 +149,6 @@
     .card i {
       font-size: 2.5rem;
       margin-bottom: 1rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
 
     .card h2 {
@@ -197,8 +175,6 @@
       outline: none;
       cursor: pointer;
       transition: transform 0.15s ease, opacity 0.15s ease;
-      text-align: center;
-      appearance: none;
     }
 
     .card .btn.blue { background: #007BFF; color: #fff; }
@@ -207,7 +183,6 @@
     .card .btn:hover {
       transform: translateY(-3px);
       opacity: 0.97;
-      text-decoration: none !important;
     }
 
     /* Features section */
@@ -243,58 +218,6 @@
       background: #fff;
       border-top: 1px solid #eee;
     }
-    /* Fix missing colors for Tenant & Landlord buttons */
-/* Unified Navbar Button Styles */
-/* --- UNIFIED NAVBAR BUTTON DESIGN --- */
-.nav-buttons button,
-.auth-btn {
-  border: none;
-  border-radius: 999px;
-  padding: 0.65rem 1.4rem;
-  font-weight: 600;
-  cursor: pointer;
-  color: #fff;
-  font-size: 0.95rem;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
-}
-
-/* Tenant (Blue) */
-.bubble-btn.tenant {
-  background: linear-gradient(90deg, #3b82f6, #2563eb);
-}
-.bubble-btn.tenant:hover {
-  background: linear-gradient(90deg, #2563eb, #1e40af);
-  transform: translateY(-2px);
-}
-
-/* Landlord (Green) */
-.bubble-btn.landlord {
-  background: linear-gradient(90deg, #22c55e, #16a34a);
-}
-.bubble-btn.landlord:hover {
-  background: linear-gradient(90deg, #16a34a, #15803d);
-  transform: translateY(-2px);
-}
-
-/* Login / Logout (Gray / Red) */
-.auth-btn {
-  background: linear-gradient(90deg, #64748b, #475569);
-}
-.auth-btn:hover {
-  background: linear-gradient(90deg, #475569, #334155);
-  transform: translateY(-2px);
-}
-
-.auth-btn.logout {
-  background: linear-gradient(90deg, #ef4444, #dc2626);
-}
-.auth-btn.logout:hover {
-  background: linear-gradient(90deg, #f87171, #ef4444);
-  transform: translateY(-2px);
-}
-
-
   </style>
 </head>
 
@@ -309,11 +232,7 @@
       <a href="forum.html"><i class="fas fa-comments"></i>Forum</a>
       <a href="resources.html"><i class="fas fa-book"></i>Resources</a>
     </div>
-    <div class="nav-buttons">
-      <button class="bubble-btn tenant" onclick="checkRoleAndNavigate('tenant','/rentwatch-frontend/tenant-complaint.html')">Tenant Complaint</button>
-      <button class="bubble-btn landlord" onclick="checkRoleAndNavigate('landlord','/rentwatch-frontend/landlord-complaint.html')">Landlord Complaint</button>
-      <button id="authBtn" class="btn auth-btn">Login</button>
-    </div>
+    <button id="authBtn" class="auth-btn">Login</button>
   </nav>
 
   <!-- Hero -->
@@ -323,14 +242,14 @@
     <p>Raise your concerns, support others, and build a better rental community.</p>
 
     <div class="cards">
-      <div class="card white-bg">
+      <div class="card">
         <i class="fas fa-user" style="color: #007BFF;"></i>
         <h2>I’m a Tenant</h2>
         <p>Report discrimination, illegal deposits, rent hikes, harassment, or poor living conditions.</p>
         <a href="tenant-complaint.html" class="btn blue">File Tenant Complaint</a>
       </div>
 
-      <div class="card white-bg">
+      <div class="card">
         <i class="fas fa-home" style="color: #28A745;"></i>
         <h2>I’m a Landlord</h2>
         <p>Report unpaid rent, property damage, irresponsible tenants, or lease violations.</p>
@@ -359,9 +278,7 @@
     </div>
   </header>
 
-  <footer>
-    © 2025 RentWatch BLR · Building a Fairer Bangalore
-  </footer>
+  <footer>© 2025 RentWatch BLR · Building a Fairer Bangalore</footer>
 
   <script>
     (function () {
@@ -370,9 +287,7 @@
 
       function refreshAuth() {
         const token = localStorage.getItem('rw_token');
-
         if (token) {
-          // Logged in
           authBtn.textContent = 'Logout';
           authBtn.classList.add('logout');
           authBtn.onclick = (e) => {
@@ -393,11 +308,9 @@
           }
 
         } else {
-          // Logged out
           authBtn.textContent = 'Login';
           authBtn.classList.remove('logout');
           authBtn.onclick = () => window.location.href = '/rentwatch-frontend/login.html';
-
           welcomeArea.style.display = 'none';
         }
       }
@@ -405,24 +318,6 @@
       refreshAuth();
       window.addEventListener('storage', refreshAuth);
     })();
-
-    function checkRoleAndNavigate(requiredRole, destination) {
-      const token = localStorage.getItem('rw_token');
-      if (!token) return window.location.href = '/rentwatch-frontend/login.html';
-
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        if (payload.role !== requiredRole) {
-          alert(`You must be logged in as a ${requiredRole} to access this page.`);
-          return;
-        }
-        window.location.href = destination;
-      } catch (e) {
-        console.error('Invalid token', e);
-        window.location.href = '/rentwatch-frontend/login.html';
-
-      }
-    }
   </script>
 </body>
 </html>
