@@ -204,134 +204,157 @@
   <footer>© 2025 RentWatch BLR · Building a Fairer Bangalore</footer>
 
   <script>
-    const BACKEND_URL = "https://rentwatch-backend.onrender.com";
+  const BACKEND_URL = "https://rentwatch-backend.onrender.com";
 
-    // --- AUTH BUTTON LOGIC ---
-    (function () {
-      const authBtn = document.getElementById('authBtn');
-      function refreshAuth() {
-        const token = localStorage.getItem('rw_token');
-        if (token) {
-          authBtn.textContent = 'Logout';
-          authBtn.classList.add('logout');
-          authBtn.onclick = (e) => {
-            e.preventDefault();
-            localStorage.removeItem('rw_token');
-            sessionStorage.setItem('rw_logged_out', '1');
-            window.location.reload();
-          };
-        } else {
-          authBtn.textContent = 'Login';
-          authBtn.classList.remove('logout');
-          authBtn.onclick = () => window.location.href = '/rentwatch-frontend/login.html';
-        }
-      }
-      refreshAuth();
-      window.addEventListener('storage', refreshAuth);
-    })();
-
-    // --- DATE FORMATTER ---
-    function formatDate(d) {
-      if (!d) return "Unknown date";
-      const dt = new Date(d);
-      return dt.toLocaleString();
-    }
-
-    // --- RENDER COMPLAINTS ---
-    async function renderComplaints() {
-      const grid = document.getElementById('complaintsGrid');
-      grid.innerHTML = '<div style="grid-column:1/-1;height:6px"></div>';
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/public/complaints`);
-        if (!res.ok) {
-          grid.innerHTML = '<div class="empty">Failed to load complaints. Try again later.</div>';
-          return;
-        }
-
-        const complaints = await res.json();
-        if (!complaints.length) {
-          grid.innerHTML = '<div class="empty">No complaints yet — be the first to file one.</div>';
-          return;
-        }
-
-        grid.innerHTML = '';
-        complaints.forEach(c => {
-          const id = c._id || c.id || '';
-          const likes = c.likes || 0;
-          const dislikes = c.dislikes || 0;
-
-          const card = document.createElement('article');
-          card.className = 'card';
-          card.innerHTML = `
-            <h3><i class="fa-solid ${c.role === 'tenant' ? 'fa-user' : 'fa-building'}"></i> ${c.role === 'tenant' ? 'Tenant' : 'Landlord'} Complaint</h3>
-            <div class="title">${c.issueType || 'No title'}</div>
-            <div class="desc">${c.description || 'No description provided.'}</div>
-            <small>Filed on: ${formatDate(c.createdAt || c.date || c.timestamp)}</small>
-            <div><span class="status">${c.status || 'Pending'}</span></div>
-            <div class="card-footer">
-              <button class="likeBtn"><i class="fa-regular fa-thumbs-up"></i> ${likes}</button>
-              <button class="dislikeBtn"><i class="fa-regular fa-thumbs-down"></i> ${dislikes}</button>
-            </div>
-          `;
-
-          // --- Like Button ---
-          card.querySelector('.likeBtn').addEventListener('click', async () => {
-            try {
-              const res = await fetch(`${BACKEND_URL}/api/public/complaints/${id}/like`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-              });
-              if (res.ok) renderComplaints();
-              else alert("Couldn't like this complaint. Try again later.");
-            } catch (err) {
-              console.error('Error liking complaint:', err);
-            }
-          });
-
-          // --- Dislike Button ---
-          card.querySelector('.dislikeBtn').addEventListener('click', async () => {
-            try {
-              const res = await fetch(`${BACKEND_URL}/api/public/complaints/${id}/dislike`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-              });
-              if (res.ok) renderComplaints();
-              else alert("Couldn't dislike this complaint. Try again later.");
-            } catch (err) {
-              console.error('Error disliking complaint:', err);
-            }
-          });
-
-          grid.appendChild(card);
-        });
-      } catch (err) {
-        console.error(err);
-        grid.innerHTML = '<div class="empty">Could not load complaints — check backend & network.</div>';
-      }
-    }
-
-    // safer looping render
-    (async function loopRender() {
-      await renderComplaints();
-      setInterval(renderComplaints, 10000);
-    })();
-
-    // --- ROLE CHECK NAVIGATION ---
-    function checkRoleAndNavigate(requiredRole, destination) {
+  // --- AUTH BUTTON LOGIC ---
+  (function () {
+    const authBtn = document.getElementById('authBtn');
+    function refreshAuth() {
       const token = localStorage.getItem('rw_token');
-      if (!token) return window.location.href = '/rentwatch-frontend/login.html';
-
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        if (payload.role !== requiredRole) {
-          alert(`You must be logged in as a ${requiredRole} to access this page.`);
-          return;
-        }
-        window.location.href = destination;
-      } catch {
-        window.location.href = '/rentwatch-frontend/login.html';
+      if (token) {
+        authBtn.textContent = 'Logout';
+        authBtn.classList.add('logout');
+        authBtn.onclick = (e) => {
+          e.preventDefault();
+          localStorage.removeItem('rw_token');
+          sessionStorage.setItem('rw_logged_out', '1');
+          window.location.reload();
+        };
+      } else {
+        authBtn.textContent = 'Login';
+        authBtn.classList.remove('logout');
+        authBtn.onclick = () => window.location.href = '/rentwatch-frontend/login.html';
       }
     }
-  </script>
+    refreshAuth();
+    window.addEventListener('storage', refreshAuth);
+  })();
+
+  // --- DATE FORMATTER ---
+  function formatDate(d) {
+    if (!d) return "Unknown date";
+    const dt = new Date(d);
+    return dt.toLocaleString();
+  }
+
+  // --- RENDER COMPLAINTS ---
+  async function renderComplaints() {
+    const grid = document.getElementById('complaintsGrid');
+    grid.innerHTML = '<div style="grid-column:1/-1;height:6px"></div>';
+    try {
+      const res = await fetch(`${BACKEND_URL}/api/public/complaints`);
+      if (!res.ok) {
+        grid.innerHTML = '<div class="empty">Failed to load complaints. Try again later.</div>';
+        return;
+      }
+
+      const complaints = await res.json();
+      if (!complaints.length) {
+        grid.innerHTML = '<div class="empty">No complaints yet — be the first to file one.</div>';
+        return;
+      }
+
+      grid.innerHTML = '';
+      complaints.forEach(c => {
+        const id = c._id || c.id || '';
+        const likes = c.likes || 0;
+        const dislikes = c.dislikes || 0;
+
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3><i class="fa-solid ${c.role === 'tenant' ? 'fa-user' : 'fa-building'}"></i> ${c.role === 'tenant' ? 'Tenant' : 'Landlord'} Complaint</h3>
+          <div class="title">${c.issueType || 'No title'}</div>
+          <div class="desc">${c.description || 'No description provided.'}</div>
+          <small>Filed on: ${formatDate(c.createdAt || c.date || c.timestamp)}</small>
+          <div><span class="status">${c.status || 'Pending'}</span></div>
+          <div class="card-footer">
+            <button class="likeBtn"><i class="fa-regular fa-thumbs-up"></i> ${likes}</button>
+            <button class="dislikeBtn"><i class="fa-regular fa-thumbs-down"></i> ${dislikes}</button>
+          </div>
+        `;
+
+        // --- Like Button ---
+        card.querySelector('.likeBtn').addEventListener('click', async () => {
+          const token = localStorage.getItem('rw_token');
+          if (!token) return alert("Please log in to like a complaint.");
+
+          try {
+            const res = await fetch(`${BACKEND_URL}/api/complaints/${id}/like`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              }
+            });
+
+            if (res.ok) renderComplaints();
+            else {
+              const errData = await res.json().catch(() => ({}));
+              alert(errData.error || "Couldn't like this complaint. Try again later.");
+            }
+          } catch (err) {
+            console.error('Error liking complaint:', err);
+            alert("Network error while liking complaint.");
+          }
+        });
+
+        // --- Dislike Button ---
+        card.querySelector('.dislikeBtn').addEventListener('click', async () => {
+          const token = localStorage.getItem('rw_token');
+          if (!token) return alert("Please log in to dislike a complaint.");
+
+          try {
+            const res = await fetch(`${BACKEND_URL}/api/complaints/${id}/dislike`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              }
+            });
+
+            if (res.ok) renderComplaints();
+            else {
+              const errData = await res.json().catch(() => ({}));
+              alert(errData.error || "Couldn't dislike this complaint. Try again later.");
+            }
+          } catch (err) {
+            console.error('Error disliking complaint:', err);
+            alert("Network error while disliking complaint.");
+          }
+        });
+
+        grid.appendChild(card);
+      });
+    } catch (err) {
+      console.error(err);
+      grid.innerHTML = '<div class="empty">Could not load complaints — check backend & network.</div>';
+    }
+  }
+
+  // safer looping render
+  (async function loopRender() {
+    await renderComplaints();
+    setInterval(renderComplaints, 10000);
+  })();
+
+  // --- ROLE CHECK NAVIGATION ---
+  function checkRoleAndNavigate(requiredRole, destination) {
+    const token = localStorage.getItem('rw_token');
+    if (!token) return window.location.href = '/rentwatch-frontend/login.html';
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.role !== requiredRole) {
+        alert(`You must be logged in as a ${requiredRole} to access this page.`);
+        return;
+      }
+      window.location.href = destination;
+    } catch {
+      window.location.href = '/rentwatch-frontend/login.html';
+    }
+  }
+</script>
+
 </body>
 </html>
