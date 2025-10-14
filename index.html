@@ -245,27 +245,39 @@
     }
     /* Fix missing colors for Tenant & Landlord buttons */
 /* Unified Navbar Button Styles */
-.bubble-btn,
+/* --- UNIFIED NAVBAR BUTTON DESIGN --- */
+.nav-buttons button,
 .auth-btn {
-  padding: 0.6rem 1.2rem;
-  border-radius: 999px;
   border: none;
-  cursor: pointer;
+  border-radius: 999px;
+  padding: 0.65rem 1.4rem;
   font-weight: 600;
+  cursor: pointer;
   color: #fff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
 }
 
-/* Tenant / Landlord colors */
+/* Tenant (Blue) */
 .bubble-btn.tenant {
   background: linear-gradient(90deg, #3b82f6, #2563eb);
 }
+.bubble-btn.tenant:hover {
+  background: linear-gradient(90deg, #2563eb, #1e40af);
+  transform: translateY(-2px);
+}
+
+/* Landlord (Green) */
 .bubble-btn.landlord {
   background: linear-gradient(90deg, #22c55e, #16a34a);
 }
+.bubble-btn.landlord:hover {
+  background: linear-gradient(90deg, #16a34a, #15803d);
+  transform: translateY(-2px);
+}
 
-/* Login (neutral but clean) */
+/* Login / Logout (Gray / Red) */
 .auth-btn {
   background: linear-gradient(90deg, #64748b, #475569);
 }
@@ -274,7 +286,6 @@
   transform: translateY(-2px);
 }
 
-/* Logout red variant */
 .auth-btn.logout {
   background: linear-gradient(90deg, #ef4444, #dc2626);
 }
@@ -282,6 +293,7 @@
   background: linear-gradient(90deg, #f87171, #ef4444);
   transform: translateY(-2px);
 }
+
 
   </style>
 </head>
