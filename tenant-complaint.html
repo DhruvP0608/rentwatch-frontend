@@ -203,7 +203,7 @@
       <h2>File a Tenant Complaint</h2>
       <form id="tenantComplaintForm">
         <select id="targetUser" required>
-          <option value="">Select person you're complaining about</option>
+          <option value="">Select landlord</option>
         </select>
         <select id="issueType" required>
           <option value="">Select Issue Type</option>
@@ -238,11 +238,10 @@
     const popup = document.getElementById('popupOverlay');
     const userSelect = document.getElementById('targetUser');
 
-    // ✅ Verify tenant role
+    // ✅ Role Verification
     (function verifyRole() {
       const token = localStorage.getItem('rw_token');
       if (!token) return (window.location.href = '/rentwatch-frontend/login.html');
-
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         if (payload.role !== 'tenant') {
@@ -254,27 +253,26 @@
       }
     })();
 
-    // ✅ Load landlords only
-    (async function loadUsers() {
+    // ✅ Load all landlords
+    (async function loadLandlords() {
       try {
         const res = await fetch(`${BACKEND_URL}/api/users`);
         const users = await res.json();
-
         const landlords = users.filter(u => u.role === 'landlord');
         landlords.forEach(u => {
           const opt = document.createElement('option');
-          opt.value = u._id;
+          opt.value = u._id || u.id;
           opt.textContent = `${u.name} (${u.role})`;
           userSelect.appendChild(opt);
         });
       } catch (err) {
-        console.error('❌ Failed to load users:', err);
-        alert('Could not load landlord list. Please try again later.');
+        console.error('❌ Failed to load landlords:', err);
+        alert('Could not load landlords. Please try again later.');
       }
     })();
 
-    // ✅ Handle complaint submission
-    form.addEventListener('submit', async e => {
+    // ✅ Submit Complaint
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const token = localStorage.getItem('rw_token');
       if (!token) return (window.location.href = '/rentwatch-frontend/login.html');
@@ -305,18 +303,18 @@
           body: JSON.stringify(payload)
         });
 
-        const result = await res.json();
+        const data = await res.json();
 
         if (res.ok) {
           popup.style.display = 'flex';
           form.reset();
         } else {
-          console.error('❌ Backend error:', result);
-          alert(result.error || 'Failed to submit complaint. Please try again later.');
+          console.error('❌ Backend error:', data);
+          alert(data.error || 'Failed to submit complaint.');
         }
       } catch (err) {
-        console.error('❌ Network/Server error:', err);
-        alert('Failed to submit complaint. Please try again later.');
+        console.error('❌ Network error:', err);
+        alert('Could not reach server. Please try again later.');
       }
     });
 

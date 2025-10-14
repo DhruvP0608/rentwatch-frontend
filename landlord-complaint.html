@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Landlord Complaint - RentWatch BLR</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Landlord Complaint - RentWatch BLR</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <style>
     :root {
@@ -11,12 +11,14 @@
       --green: #22c55e;
       --light-bg: #f9fafb;
     }
+
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: var(--light-bg);
       color: #222;
     }
+
     .navbar {
       display: flex;
       justify-content: space-between;
@@ -28,16 +30,19 @@
       top: 0;
       z-index: 100;
     }
+
     .logo {
       font-size: 1.5rem;
       font-weight: 700;
-      color: #0b57d0;
+      color: var(--blue);
       text-decoration: none;
     }
+
     .nav-links {
       display: flex;
       gap: 1rem;
     }
+
     .nav-links a {
       color: #333;
       text-decoration: none;
@@ -46,32 +51,38 @@
       border-radius: 20px;
       transition: all 0.2s ease;
     }
+
     .nav-links a:hover {
       background: #f3f4f6;
       transform: scale(1.05);
     }
+
     .hero {
       background: linear-gradient(to right, var(--blue), var(--green));
       color: #fff;
       text-align: center;
       padding: 3rem 1rem;
     }
+
     .hero h1 {
       font-size: 2.3rem;
       margin: 0;
       font-weight: 800;
     }
+
     .hero p {
       font-size: 1.1rem;
       margin-top: 0.5rem;
       opacity: 0.95;
     }
+
     main {
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 3rem 1rem;
     }
+
     .complaint-card {
       background: #fff;
       border-radius: 20px;
@@ -79,7 +90,14 @@
       width: 100%;
       max-width: 640px;
       padding: 2.5rem;
+      animation: fadeIn 0.4s ease-in-out;
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     h2 {
       text-align: center;
       font-size: 1.7rem;
@@ -87,11 +105,13 @@
       font-weight: 700;
       color: #111;
     }
+
     form {
       display: flex;
       flex-direction: column;
       gap: 1rem;
     }
+
     select, textarea {
       width: 100%;
       padding: 0.9rem;
@@ -101,15 +121,18 @@
       background: #f9fafb;
       transition: all 0.2s ease;
     }
+
     select:focus, textarea:focus {
       border-color: var(--blue);
       box-shadow: 0 0 6px rgba(37,99,235,0.2);
       outline: none;
     }
+
     textarea {
       resize: vertical;
       min-height: 120px;
     }
+
     button {
       background: linear-gradient(90deg, var(--blue), var(--green));
       color: #fff;
@@ -121,10 +144,12 @@
       cursor: pointer;
       transition: all 0.25s ease;
     }
+
     button:hover {
       transform: translateY(-1px);
       box-shadow: 0 6px 16px rgba(0,0,0,0.1);
     }
+
     .popup-overlay {
       position: fixed;
       inset: 0;
@@ -134,6 +159,7 @@
       justify-content: center;
       z-index: 9999;
     }
+
     .popup-box {
       background: #fff;
       border-radius: 20px;
@@ -141,10 +167,18 @@
       text-align: center;
       box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     }
+
     .popup-box i {
       color: var(--green);
       font-size: 48px;
       margin-bottom: 12px;
+    }
+
+    footer {
+      text-align: center;
+      color: #666;
+      font-size: 0.9rem;
+      padding: 1.5rem 0;
     }
   </style>
 </head>
@@ -169,7 +203,7 @@
       <h2>File a Landlord Complaint</h2>
       <form id="landlordComplaintForm">
         <select id="targetUser" required>
-          <option value="">Select person you're complaining about</option>
+          <option value="">Select tenant</option>
         </select>
         <select id="issueType" required>
           <option value="">Select Issue Type</option>
@@ -188,7 +222,7 @@
     <div class="popup-box">
       <i class="fa-solid fa-circle-check"></i>
       <h3>Complaint Registered!</h3>
-      <p>Your complaint has been submitted successfully.</p>
+      <p>Your complaint has been successfully submitted.</p>
       <button onclick="closePopup()">OK</button>
       <p style="margin-top: 12px;">
         <a href="browse.html" style="color:var(--green);font-weight:600;text-decoration:none;">View All Complaints →</a>
@@ -204,11 +238,10 @@
     const popup = document.getElementById('popupOverlay');
     const userSelect = document.getElementById('targetUser');
 
-    // ✅ Verify user role
+    // ✅ Verify role
     (function verifyRole() {
       const token = localStorage.getItem('rw_token');
       if (!token) return (window.location.href = '/rentwatch-frontend/login.html');
-
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         if (payload.role !== 'landlord') {
@@ -220,27 +253,26 @@
       }
     })();
 
-    // ✅ Populate user dropdown (tenants)
-    (async function loadUsers() {
+    // ✅ Load all tenants
+    (async function loadTenants() {
       try {
         const res = await fetch(`${BACKEND_URL}/api/users`);
         const users = await res.json();
-
-        const tenants = users.filter(u => u.role === 'tenant'); // landlords only complain about tenants
+        const tenants = users.filter(u => u.role === 'tenant');
         tenants.forEach(u => {
           const opt = document.createElement('option');
-          opt.value = u._id; // ✅ use ID
+          opt.value = u._id || u.id;
           opt.textContent = `${u.name} (${u.role})`;
           userSelect.appendChild(opt);
         });
       } catch (err) {
-        console.error('❌ Failed to load users:', err);
+        console.error('❌ Failed to load tenants:', err);
         alert('Could not load tenant list. Please try again later.');
       }
     })();
 
-    // ✅ Handle form submit
-    form.addEventListener('submit', async e => {
+    // ✅ Submit Complaint
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const token = localStorage.getItem('rw_token');
       if (!token) return (window.location.href = '/rentwatch-frontend/login.html');
@@ -250,12 +282,12 @@
       const description = document.getElementById('description').value;
 
       if (!complainedUserId) {
-        alert('Please select the tenant you’re complaining about.');
+        alert('Please select a tenant.');
         return;
       }
 
       const payload = {
-        type: 'landlord', // ✅ explicitly include type
+        type: 'landlord',
         complainedUserId,
         issueType,
         description
@@ -271,18 +303,18 @@
           body: JSON.stringify(payload)
         });
 
-        const result = await res.json();
+        const data = await res.json();
 
         if (res.ok) {
           popup.style.display = 'flex';
           form.reset();
         } else {
-          console.error('❌ Backend error:', result);
-          alert(result.error || 'Failed to submit complaint. Please try again later.');
+          console.error('❌ Backend error:', data);
+          alert(data.error || 'Failed to submit complaint.');
         }
       } catch (err) {
-        console.error('❌ Network/Server error:', err);
-        alert('Failed to submit complaint. Please try again later.');
+        console.error('❌ Network error:', err);
+        alert('Could not reach server. Please try again later.');
       }
     });
 

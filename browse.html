@@ -4,8 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Browse Complaints - RentWatch BLR</title>
-
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
   <style>
@@ -63,6 +61,7 @@
       font-weight: 600;
       font-size: 0.95rem;
       box-shadow: none;
+      transition: transform .18s ease;
     }
     .nav-links a:hover {
       transform: translateY(-1px);
@@ -217,7 +216,6 @@
         authBtn.onclick = (e) => {
           e.preventDefault();
           localStorage.removeItem('rw_token');
-          sessionStorage.setItem('rw_logged_out', '1');
           window.location.reload();
         };
       } else {
@@ -227,28 +225,26 @@
       }
     }
     refreshAuth();
-    window.addEventListener('storage', refreshAuth);
   })();
 
   // --- DATE FORMATTER ---
   function formatDate(d) {
-    if (!d) return "Unknown date";
+    if (!d) return "Unknown";
     const dt = new Date(d);
+    if (isNaN(dt)) return "Unknown";
     return dt.toLocaleString();
   }
 
   // --- RENDER COMPLAINTS ---
   async function renderComplaints() {
     const grid = document.getElementById('complaintsGrid');
-    grid.innerHTML = '<div style="grid-column:1/-1;height:6px"></div>';
+    grid.innerHTML = '<div class="empty">Loading complaints...</div>';
+
     try {
       const res = await fetch(`${BACKEND_URL}/api/public/complaints`);
-      if (!res.ok) {
-        grid.innerHTML = '<div class="empty">Failed to load complaints. Try again later.</div>';
-        return;
-      }
-
+      if (!res.ok) throw new Error('Failed to load complaints');
       const complaints = await res.json();
+
       if (!complaints.length) {
         grid.innerHTML = '<div class="empty">No complaints yet — be the first to file one.</div>';
         return;
@@ -259,23 +255,21 @@
         const id = c._id || c.id || '';
         const likes = c.likes || 0;
         const dislikes = c.dislikes || 0;
+        const statusHTML =
+          c.verified
+            ? '<span style="color:#16a34a;">Resolved ✅</span>'
+            : c.resolvedAt && !c.verified
+              ? '<span style="color:#2563eb;">Awaiting Verification ⏳</span>'
+              : '<span style="color:#dc2626;">Pending 🔴</span>';
 
         const card = document.createElement('article');
         card.className = 'card';
         card.innerHTML = `
           <h3><i class="fa-solid ${c.role === 'tenant' ? 'fa-user' : 'fa-building'}"></i> ${c.role === 'tenant' ? 'Tenant' : 'Landlord'} Complaint</h3>
-          <div class="title">${c.issueType || 'No title'}</div>
-          <div class="desc">${c.description || 'No description provided.'}</div>
-          <small>Filed on: ${formatDate(c.createdAt || c.date || c.timestamp)}</small>
-          <div class="status" style="margin-top:6px;font-weight:600;">
-  ${
-    c.verified
-      ? '<span style="color:#16a34a;">Resolved ✅</span>'
-      : c.status === 'Awaiting Verification'
-      ? '<span style="color:#2563eb;">Awaiting Verification ⏳</span>'
-      : '<span style="color:#dc2626;">Pending 🔴</span>'
-  }
-</div>
+          <div style="font-weight:600;font-size:1.1rem;margin:4px 0;">${c.issueType || 'No title'}</div>
+          <div class="desc" style="margin-bottom:6px;">${c.description || 'No description provided.'}</div>
+          <small>Filed on: ${formatDate(c.date || c.createdAt)}</small>
+          <div class="status" style="margin-top:6px;font-weight:600;">${statusHTML}</div>
 
           <div class="card-footer">
             <button class="likeBtn"><i class="fa-regular fa-thumbs-up"></i> ${likes}</button>
@@ -283,53 +277,43 @@
           </div>
         `;
 
-        // --- Like Button ---
+        // like
         card.querySelector('.likeBtn').addEventListener('click', async () => {
           const token = localStorage.getItem('rw_token');
           if (!token) return alert("Please log in to like a complaint.");
-
           try {
             const res = await fetch(`${BACKEND_URL}/api/complaints/${id}/like`, {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              }
+              headers: { 'Authorization': 'Bearer ' + token }
             });
-
             if (res.ok) renderComplaints();
             else {
-              const errData = await res.json().catch(() => ({}));
-              alert(errData.error || "Couldn't like this complaint. Try again later.");
+              const err = await res.json();
+              alert(err.error || 'Error liking complaint');
             }
           } catch (err) {
-            console.error('Error liking complaint:', err);
-            alert("Network error while liking complaint.");
+            console.error(err);
+            alert('Network error while liking.');
           }
         });
 
-        // --- Dislike Button ---
+        // dislike
         card.querySelector('.dislikeBtn').addEventListener('click', async () => {
           const token = localStorage.getItem('rw_token');
           if (!token) return alert("Please log in to dislike a complaint.");
-
           try {
             const res = await fetch(`${BACKEND_URL}/api/complaints/${id}/dislike`, {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              }
+              headers: { 'Authorization': 'Bearer ' + token }
             });
-
             if (res.ok) renderComplaints();
             else {
-              const errData = await res.json().catch(() => ({}));
-              alert(errData.error || "Couldn't dislike this complaint. Try again later.");
+              const err = await res.json();
+              alert(err.error || 'Error disliking complaint');
             }
           } catch (err) {
-            console.error('Error disliking complaint:', err);
-            alert("Network error while disliking complaint.");
+            console.error(err);
+            alert('Network error while disliking.');
           }
         });
 
@@ -337,21 +321,16 @@
       });
     } catch (err) {
       console.error(err);
-      grid.innerHTML = '<div class="empty">Could not load complaints — check backend & network.</div>';
+      grid.innerHTML = '<div class="empty">Error loading complaints. Try again later.</div>';
     }
   }
 
-  // safer looping render
-  (async function loopRender() {
-    await renderComplaints();
-    setInterval(renderComplaints, 10000);
-  })();
+  renderComplaints();
 
   // --- ROLE CHECK NAVIGATION ---
   function checkRoleAndNavigate(requiredRole, destination) {
     const token = localStorage.getItem('rw_token');
     if (!token) return window.location.href = '/rentwatch-frontend/login.html';
-
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       if (payload.role !== requiredRole) {
@@ -363,7 +342,6 @@
       window.location.href = '/rentwatch-frontend/login.html';
     }
   }
-</script>
-
+  </script>
 </body>
 </html>
