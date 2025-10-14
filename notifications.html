@@ -13,7 +13,6 @@
       color: #333;
     }
 
-    /* Navbar */
     .navbar {
       display: flex;
       justify-content: space-between;
@@ -132,20 +131,22 @@
     .notification-card p { margin: 0.5rem 0; color: #444; }
     .notification-card small { color: #666; display: block; margin-top: 0.4rem; }
 
-    .resolve-btn {
-      background-color: #28a745;
-      color: white;
+    .resolve-btn, .verify-btn {
       border: none;
       border-radius: 8px;
       padding: 8px 12px;
       cursor: pointer;
       margin-top: 0.75rem;
       font-weight: 500;
+      color: white;
       transition: all 0.2s ease;
     }
 
-    .resolve-btn:hover { background-color: #218838; transform: scale(1.05); }
-    .resolve-btn:disabled { background-color: #bbb; cursor: not-allowed; }
+    .resolve-btn { background-color: #28a745; }
+    .verify-btn { background-color: #2563eb; }
+
+    .resolve-btn:hover, .verify-btn:hover { transform: scale(1.05); }
+    .resolve-btn:disabled, .verify-btn:disabled { background-color: #bbb; cursor: not-allowed; }
 
     .empty-msg {
       font-size: 1.1rem;
@@ -190,180 +191,139 @@
   <footer>© 2025 RentWatch BLR · Building a Fairer Bangalore</footer>
 
   <script>
-  const BACKEND_URL = "https://rentwatch-backend.onrender.com";
-  const notifContainer = document.getElementById('notifList');
+    const BACKEND_URL = "https://rentwatch-backend.onrender.com";
+    const notifContainer = document.getElementById('notifList');
 
-  // Dynamic Login/Logout toggle
-  (function () {
-    const authBtn = document.getElementById('authBtn');
-    function refreshAuth() {
+    // dynamic auth toggle
+    (function () {
+      const authBtn = document.getElementById('authBtn');
+      function refreshAuth() {
+        const token = localStorage.getItem('rw_token');
+        if (token) {
+          authBtn.textContent = 'Logout';
+          authBtn.classList.add('logout');
+          authBtn.onclick = (e) => {
+            e.preventDefault();
+            localStorage.removeItem('rw_token');
+            window.location.reload();
+          };
+        } else {
+          authBtn.textContent = 'Login';
+          authBtn.classList.remove('logout');
+          authBtn.onclick = () => window.location.href = '/rentwatch-frontend/login.html';
+        }
+      }
+      refreshAuth();
+    })();
+
+    async function loadNotifications() {
       const token = localStorage.getItem('rw_token');
-      if (token) {
-        authBtn.textContent = 'Logout';
-        authBtn.classList.add('logout');
-        authBtn.onclick = (e) => {
-          e.preventDefault();
-          localStorage.removeItem('rw_token');
-          sessionStorage.setItem('rw_logged_out', '1');
-          window.location.reload();
-        };
-      } else {
-        authBtn.textContent = 'Login';
-        authBtn.classList.remove('logout');
-        authBtn.onclick = () => window.location.href = '/rentwatch-frontend/login.html';
-      }
-    }
-    refreshAuth();
-    window.addEventListener('storage', refreshAuth);
-  })();
-
-  // 🔔 Load Notifications
-  async function loadNotifications() {
-    const token = localStorage.getItem('rw_token');
-    if (!token) {
-      notifContainer.innerHTML = '<p class="empty-msg">You need to log in to view notifications.</p>';
-      return;
-    }
-
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/notifications`, {
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-
-      if (!res.ok) {
-        notifContainer.innerHTML = '<p class="empty-msg">Unable to load notifications.</p>';
+      if (!token) {
+        notifContainer.innerHTML = '<p class="empty-msg">You need to log in to view notifications.</p>';
         return;
       }
 
-      const data = await res.json();
-      notifContainer.innerHTML = '';
-
-      if (data.length === 0) {
-        notifContainer.innerHTML = '<p class="empty-msg">No new notifications 🎉</p>';
-        return;
-      }
-
-      // Get current logged in user info
       const payload = JSON.parse(atob(token.split('.')[1]));
       const currentUserId = payload.id || payload._id;
 
-      data.forEach(n => {
-        const card = document.createElement('div');
-        card.classList.add('notification-card');
-        card.innerHTML = `
-          <h3><i class="fa-solid fa-bell"></i> ${n.issueType}</h3>
-          <p>${n.description}</p>
-          <small>Filed by ${n.complainantName || 'Anonymous'} on ${new Date(n.date).toLocaleString()}</small>
-          <small>Status: <b>${n.status}</b></small>
-        `;
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/notifications`, {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        const data = await res.json();
 
-        // If the current user is the complained user and complaint is Pending → show Resolve button
-        if (n.status === 'Pending' && n.complainedUserId === currentUserId) {
-          const btn = document.createElement('button');
-          btn.classList.add('resolve-btn');
-          btn.innerText = 'Mark as Resolved';
-          btn.onclick = () => resolveComplaint(n.id, btn);
-          card.appendChild(btn);
+        notifContainer.innerHTML = '';
+
+        if (!Array.isArray(data) || !data.length) {
+          notifContainer.innerHTML = '<p class="empty-msg">No notifications 🎉</p>';
+          return;
         }
 
-        // If current user is the complainant and complaint is Resolved but not verified → show Verify button
-        if (n.status === 'Resolved' && !n.verified && n.complainantId === currentUserId) {
-          const btn = document.createElement('button');
-          btn.classList.add('resolve-btn');
-          btn.style.background = '#2563eb';
-          btn.innerText = 'Verify Resolution';
-          btn.onclick = () => verifyComplaint(n.id, btn);
-          card.appendChild(btn);
-        }
+        data.forEach(n => {
+          const card = document.createElement('div');
+          card.classList.add('notification-card');
+          card.innerHTML = `
+            <h3><i class="fa-solid fa-bell"></i> ${n.issueType}</h3>
+            <p>${n.description}</p>
+            <small>Filed by ${n.complainantName || 'Anonymous'} on ${new Date(n.date).toLocaleString()}</small>
+            <small>Status: <b>${n.status}</b></small>
+          `;
 
-        notifContainer.appendChild(card);
-      });
-    } catch (err) {
-      console.error(err);
-      notifContainer.innerHTML = '<p class="empty-msg">Server error loading notifications.</p>';
+          if (n.status === 'Pending' && n.complainedUserId === currentUserId) {
+            const btn = document.createElement('button');
+            btn.classList.add('resolve-btn');
+            btn.textContent = 'Mark as Resolved';
+            btn.onclick = () => resolveComplaint(n.id, btn);
+            card.appendChild(btn);
+          }
+
+          if (n.status === 'Awaiting Verification' && n.complainantId === currentUserId && !n.verified) {
+            const btn = document.createElement('button');
+            btn.classList.add('verify-btn');
+            btn.textContent = 'Verify Resolution';
+            btn.onclick = () => verifyComplaint(n.id, btn);
+            card.appendChild(btn);
+          }
+
+          notifContainer.appendChild(card);
+        });
+      } catch (err) {
+        console.error(err);
+        notifContainer.innerHTML = '<p class="empty-msg">Server error loading notifications.</p>';
+      }
     }
-  }
 
-  // ✅ Mark as Resolved API
-  async function resolveComplaint(id, btn) {
-    const token = localStorage.getItem('rw_token');
-    btn.disabled = true;
-    btn.innerText = 'Resolving...';
-
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/complaints/${id}/resolve`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
+    async function resolveComplaint(id, btn) {
+      const token = localStorage.getItem('rw_token');
+      btn.disabled = true;
+      btn.textContent = 'Resolving...';
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/complaints/${id}/resolve`, {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        if (res.ok) {
+          btn.textContent = 'Awaiting Verification ⏳';
+          setTimeout(loadNotifications, 1000);
+        } else {
+          const msg = await res.json();
+          alert(msg.error || 'Failed to resolve');
+          btn.textContent = 'Mark as Resolved';
+          btn.disabled = false;
         }
-      });
-
-      if (res.ok) {
-        btn.innerText = 'Awaiting Verification ⏳';
-        setTimeout(loadNotifications, 1000);
-      } else {
-        const msg = await res.json();
-        alert(msg.error || 'Failed to resolve');
+      } catch (err) {
+        alert('Server error.');
+        btn.textContent = 'Mark as Resolved';
         btn.disabled = false;
-        btn.innerText = 'Mark as Resolved';
       }
-    } catch (err) {
-      alert('Server error.');
-      btn.disabled = false;
-      btn.innerText = 'Mark as Resolved';
     }
-  }
 
-  // ✅ Verify Complaint API (for complainant)
-  async function verifyComplaint(id, btn) {
-    const token = localStorage.getItem('rw_token');
-    btn.disabled = true;
-    btn.innerText = 'Verifying...';
-
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/complaints/${id}/verify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token
+    async function verifyComplaint(id, btn) {
+      const token = localStorage.getItem('rw_token');
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/complaints/${id}/verify`, {
+          method: 'POST',
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        if (res.ok) {
+          btn.textContent = 'Verified ✅';
+          setTimeout(loadNotifications, 1000);
+        } else {
+          const msg = await res.json();
+          alert(msg.error || 'Verification failed');
+          btn.textContent = 'Verify Resolution';
+          btn.disabled = false;
         }
-      });
-
-      if (res.ok) {
-        btn.innerText = 'Verified ✅';
-        setTimeout(loadNotifications, 1000);
-      } else {
-        const msg = await res.json();
-        alert(msg.error || 'Verification failed.');
+      } catch (err) {
+        alert('Server error.');
+        btn.textContent = 'Verify Resolution';
         btn.disabled = false;
-        btn.innerText = 'Verify Resolution';
       }
-    } catch (err) {
-      alert('Server error.');
-      btn.disabled = false;
-      btn.innerText = 'Verify Resolution';
     }
-  }
 
-  // 🔐 Role-based navigation
-  function checkRoleAndNavigate(role, destination) {
-    const token = localStorage.getItem('rw_token');
-    if (!token) return window.location.href = '/rentwatch-frontend/login.html';
-
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      if (payload.role !== role) {
-        alert(`You must be logged in as a ${role} to access this page.`);
-        return;
-      }
-      window.location.href = destination;
-    } catch {
-      window.location.href = '/rentwatch-frontend/login.html';
-    }
-  }
-
-  loadNotifications();
-</script>
+    loadNotifications();
+  </script>
 </body>
 </html>
